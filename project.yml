@@ -3,7 +3,6 @@ options:
   bundleIdPrefix: ai.tursi
   deploymentTarget:
     iOS: "17.0"
-    macOS: "14.0"
   xcodeVersion: "16.0"
   createIntermediateGroups: true
 
@@ -15,7 +14,7 @@ packages:
 targets:
   Tursi:
     type: application
-    platform: [iOS, macOS]
+    platform: iOS
     sources:
       - path: Tursi
         excludes:
@@ -43,7 +42,7 @@ targets:
 
   TursiCore:
     type: framework
-    platform: [iOS, macOS]
+    platform: iOS
     sources:
       - path: Tursi/Core
     dependencies:
@@ -54,7 +53,7 @@ targets:
 
   TursiCoreTests:
     type: bundle.unit-test
-    platform: [iOS, macOS]
+    platform: iOS
     sources:
       - path: Tests
     dependencies:

@@ -39,12 +39,3 @@ jobs:
             -destination 'platform=iOS Simulator,name=iPhone 16' \
             -configuration Debug \
             CODE_SIGNING_ALLOWED=NO
-
-      - name: Build macOS
-        run: |
-          xcodebuild build \
-            -project Tursi.xcodeproj \
-            -scheme Tursi \
-            -destination 'platform=macOS' \
-            -configuration Debug \
-            CODE_SIGNING_ALLOWED=NO
