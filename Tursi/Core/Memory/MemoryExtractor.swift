@@ -1,7 +1,7 @@
 import Foundation
 
 /// Extracts memories from completed conversations using the local LLM.
-final class MemoryExtractor {
+final class MemoryExtractor: Sendable {
     private let engine: LLMEngine
     private let store: MemoryStore
 
@@ -11,18 +11,14 @@ final class MemoryExtractor {
     }
 
     /// Extract new memories from a conversation.
-    func extract(from conversation: Conversation, messages: [Message]) async throws -> [Memory] {
-        let existingDescriptions = await store.memories.map(\.description)
+    func extract(from conversationId: UUID, messages: [Message]) async throws -> [Memory] {
+        let existing = try store.fetchAll().map(\.description)
 
-        let prompt = buildExtractionPrompt(
-            messages: messages,
-            existingMemories: existingDescriptions
-        )
+        let prompt = buildExtractionPrompt(messages: messages, existingMemories: existing)
 
-        // Run the LLM with the extraction prompt
         var fullResponse = ""
         let stream = engine.generate(
-            messages: [Message(conversationId: conversation.id, role: .user, content: prompt)],
+            messages: [Message(conversationId: conversationId, role: .user, content: prompt)],
             systemPrompt: extractionSystemPrompt,
             tools: nil,
             stream: false
@@ -32,8 +28,12 @@ final class MemoryExtractor {
             fullResponse += token.text
         }
 
-        // Parse the structured output
-        let extracted = parseExtractionResponse(fullResponse, conversationId: conversation.id)
+        let extracted = parseExtractionResponse(fullResponse, conversationId: conversationId)
+
+        for memory in extracted {
+            try store.save(memory)
+        }
+
         return extracted
     }
 
@@ -43,7 +43,7 @@ final class MemoryExtractor {
     You are a memory extraction system. Analyze the conversation and identify \
     important facts, preferences, instructions, and context worth remembering. \
     Return ONLY new information not already captured in existing memories. \
-    Respond in JSON format.
+    Respond with a JSON array only.
     """
 
     private func buildExtractionPrompt(messages: [Message], existingMemories: [String]) -> String {
@@ -83,7 +83,6 @@ final class MemoryExtractor {
     // MARK: - Parsing
 
     private func parseExtractionResponse(_ response: String, conversationId: UUID) -> [Memory] {
-        // Find JSON array in response
         guard let jsonStart = response.firstIndex(of: "["),
               let jsonEnd = response.lastIndex(of: "]") else {
             return []

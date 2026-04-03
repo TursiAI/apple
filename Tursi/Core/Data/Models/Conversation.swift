@@ -1,6 +1,7 @@
 import Foundation
+import GRDB
 
-struct Conversation: Identifiable, Codable {
+struct Conversation: Identifiable, Codable, Sendable {
     let id: UUID
     var title: String
     let createdAt: Date
@@ -14,4 +15,8 @@ struct Conversation: Identifiable, Codable {
         self.updatedAt = Date()
         self.isArchived = isArchived
     }
+}
+
+extension Conversation: FetchableRecord, PersistableRecord {
+    static let databaseTableName = "conversation"
 }

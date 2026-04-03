@@ -1,59 +1,105 @@
 import Foundation
+import GRDB
 
 /// Local memory storage backed by SQLite.
-@MainActor
-final class MemoryStore: ObservableObject {
-    @Published var memories: [Memory] = []
+final class MemoryStore: Sendable {
+    private let db: Database
+
+    init(db: Database) {
+        self.db = db
+    }
 
     // MARK: - CRUD
 
-    func save(_ memory: Memory) async throws {
-        // TODO: Persist to SQLite via Database
-        if let index = memories.firstIndex(where: { $0.id == memory.id }) {
-            memories[index] = memory
-        } else {
-            memories.append(memory)
+    func save(_ memory: Memory) throws {
+        let record = MemoryRecord(from: memory)
+        try db.dbQueue.write { db in
+            try record.save(db)
         }
     }
 
-    func delete(_ memoryId: UUID) async throws {
-        // TODO: Delete from SQLite
-        memories.removeAll { $0.id == memoryId }
+    func delete(_ memoryId: UUID) throws {
+        try db.dbQueue.write { db in
+            _ = try MemoryRecord.deleteOne(db, key: memoryId)
+        }
     }
 
-    func togglePin(_ memoryId: UUID) async throws {
-        guard let index = memories.firstIndex(where: { $0.id == memoryId }) else { return }
-        memories[index].isPinned.toggle()
-        memories[index].importance = memories[index].isPinned ? 1.0 : 0.5
-        // TODO: Persist change
+    func togglePin(_ memoryId: UUID) throws {
+        try db.dbQueue.write { db in
+            guard var record = try MemoryRecord.fetchOne(db, key: memoryId) else { return }
+            record = MemoryRecord(from: {
+                var m = record.toMemory()
+                m.isPinned.toggle()
+                m.importance = m.isPinned ? 1.0 : 0.5
+                m.updatedAt = Date()
+                return m
+            }())
+            try record.update(db)
+        }
+    }
+
+    func get(_ memoryId: UUID) throws -> Memory? {
+        try db.dbQueue.read { db in
+            try MemoryRecord.fetchOne(db, key: memoryId)?.toMemory()
+        }
+    }
+
+    // MARK: - Fetch
+
+    func fetchAll() throws -> [Memory] {
+        try db.dbQueue.read { db in
+            try MemoryRecord
+                .order(Column("isPinned").desc, Column("importance").desc, Column("updatedAt").desc)
+                .fetchAll(db)
+                .map { $0.toMemory() }
+        }
     }
 
     // MARK: - Search
 
-    func search(query: String) -> [Memory] {
-        guard !query.isEmpty else { return memories }
-        let lowered = query.lowercased()
-        return memories.filter { memory in
-            memory.description.lowercased().contains(lowered)
-            || memory.tags.contains { $0.rawValue.contains(lowered) }
-            || memory.content.lowercased().contains(lowered)
+    func search(query: String) throws -> [Memory] {
+        guard !query.isEmpty else { return try fetchAll() }
+        let pattern = "%\(query)%"
+        return try db.dbQueue.read { db in
+            try MemoryRecord
+                .filter(
+                    Column("description").like(pattern)
+                    || Column("content").like(pattern)
+                    || Column("tagsJSON").like(pattern)
+                )
+                .order(Column("isPinned").desc, Column("importance").desc)
+                .fetchAll(db)
+                .map { $0.toMemory() }
         }
     }
 
     // MARK: - Context injection
 
-    /// Returns memories relevant to the current conversation for system prompt injection.
-    func relevantMemories(for query: String, limit: Int = 10) -> [Memory] {
-        let pinned = memories.filter { $0.isPinned }
-        let searched = search(query: query)
-            .filter { !$0.isPinned }
-            .prefix(limit - pinned.count)
+    func relevantMemories(for query: String, limit: Int = 10) throws -> [Memory] {
+        let pinned = try db.dbQueue.read { db in
+            try MemoryRecord
+                .filter(Column("isPinned") == true)
+                .fetchAll(db)
+                .map { $0.toMemory() }
+        }
+
+        let remaining = limit - pinned.count
+        guard remaining > 0, !query.isEmpty else { return pinned }
+
+        let pattern = "%\(query)%"
+        let searched = try db.dbQueue.read { db in
+            try MemoryRecord
+                .filter(Column("isPinned") == false)
+                .filter(
+                    Column("description").like(pattern)
+                    || Column("content").like(pattern)
+                )
+                .order(Column("importance").desc)
+                .limit(remaining)
+                .fetchAll(db)
+                .map { $0.toMemory() }
+        }
+
         return pinned + searched
-    }
-
-    // MARK: - Load
-
-    func loadAll() async throws {
-        // TODO: Load from SQLite
     }
 }
