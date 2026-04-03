@@ -14,7 +14,7 @@ struct LLMCapabilities {
 }
 
 /// Common interface for all LLM backends.
-protocol LLMEngine {
+protocol LLMEngine: Sendable {
     var isAvailable: Bool { get }
     var displayName: String { get }
     var capabilities: LLMCapabilities { get }
