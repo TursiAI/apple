@@ -1,4 +1,5 @@
 import SwiftUI
+import TursiCore
 
 struct MemoryListView: View {
     @StateObject private var store = MemoryStore()

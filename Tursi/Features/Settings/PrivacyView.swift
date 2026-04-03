@@ -1,4 +1,5 @@
 import SwiftUI
+import TursiCore
 
 struct PrivacyView: View {
     @State private var showRecoveryKey = false

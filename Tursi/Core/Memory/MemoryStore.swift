@@ -2,29 +2,29 @@ import Foundation
 import GRDB
 
 /// Local memory storage backed by SQLite.
-final class MemoryStore: Sendable {
+public final class MemoryStore: Sendable {
     private let db: Database
 
-    init(db: Database) {
+    public init(db: Database) {
         self.db = db
     }
 
     // MARK: - CRUD
 
-    func save(_ memory: Memory) throws {
+    public func save(_ memory: Memory) throws {
         let record = MemoryRecord(from: memory)
         try db.dbQueue.write { db in
             try record.save(db)
         }
     }
 
-    func delete(_ memoryId: UUID) throws {
+    public func delete(_ memoryId: UUID) throws {
         try db.dbQueue.write { db in
             _ = try MemoryRecord.deleteOne(db, key: memoryId)
         }
     }
 
-    func togglePin(_ memoryId: UUID) throws {
+    public func togglePin(_ memoryId: UUID) throws {
         try db.dbQueue.write { db in
             guard var record = try MemoryRecord.fetchOne(db, key: memoryId) else { return }
             record = MemoryRecord(from: {
@@ -38,7 +38,7 @@ final class MemoryStore: Sendable {
         }
     }
 
-    func get(_ memoryId: UUID) throws -> Memory? {
+    public func get(_ memoryId: UUID) throws -> Memory? {
         try db.dbQueue.read { db in
             try MemoryRecord.fetchOne(db, key: memoryId)?.toMemory()
         }
@@ -46,7 +46,7 @@ final class MemoryStore: Sendable {
 
     // MARK: - Fetch
 
-    func fetchAll() throws -> [Memory] {
+    public func fetchAll() throws -> [Memory] {
         try db.dbQueue.read { db in
             try MemoryRecord
                 .order(Column("isPinned").desc, Column("importance").desc, Column("updatedAt").desc)
@@ -57,7 +57,7 @@ final class MemoryStore: Sendable {
 
     // MARK: - Search
 
-    func search(query: String) throws -> [Memory] {
+    public func search(query: String) throws -> [Memory] {
         guard !query.isEmpty else { return try fetchAll() }
         let pattern = "%\(query)%"
         return try db.dbQueue.read { db in
@@ -75,7 +75,7 @@ final class MemoryStore: Sendable {
 
     // MARK: - Context injection
 
-    func relevantMemories(for query: String, limit: Int = 10) throws -> [Memory] {
+    public func relevantMemories(for query: String, limit: Int = 10) throws -> [Memory] {
         let pinned = try db.dbQueue.read { db in
             try MemoryRecord
                 .filter(Column("isPinned") == true)

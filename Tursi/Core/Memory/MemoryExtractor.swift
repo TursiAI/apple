@@ -1,17 +1,17 @@
 import Foundation
 
 /// Extracts memories from completed conversations using the local LLM.
-final class MemoryExtractor: Sendable {
+public final class MemoryExtractor: Sendable {
     private let engine: LLMEngine
     private let store: MemoryStore
 
-    init(engine: LLMEngine, store: MemoryStore) {
+    public init(engine: LLMEngine, store: MemoryStore) {
         self.engine = engine
         self.store = store
     }
 
     /// Extract new memories from a conversation.
-    func extract(from conversationId: UUID, messages: [Message]) async throws -> [Memory] {
+    public func extract(from conversationId: UUID, messages: [Message]) async throws -> [Memory] {
         let existing = try store.fetchAll().map(\.description)
 
         let prompt = buildExtractionPrompt(messages: messages, existingMemories: existing)

@@ -2,22 +2,22 @@ import Foundation
 import GRDB
 
 /// Persists conversations and messages to SQLite.
-final class ConversationStore: Sendable {
+public final class ConversationStore: Sendable {
     private let db: Database
 
-    init(db: Database) {
+    public init(db: Database) {
         self.db = db
     }
 
     // MARK: - Conversations
 
-    func save(_ conversation: Conversation) throws {
+    public func save(_ conversation: Conversation) throws {
         try db.dbQueue.write { db in
             try conversation.save(db)
         }
     }
 
-    func fetchAll() throws -> [Conversation] {
+    public func fetchAll() throws -> [Conversation] {
         try db.dbQueue.read { db in
             try Conversation
                 .order(Column("updatedAt").desc)
@@ -25,13 +25,13 @@ final class ConversationStore: Sendable {
         }
     }
 
-    func delete(_ conversationId: UUID) throws {
+    public func delete(_ conversationId: UUID) throws {
         try db.dbQueue.write { db in
             _ = try Conversation.deleteOne(db, key: conversationId)
         }
     }
 
-    func updateTitle(_ conversationId: UUID, title: String) throws {
+    public func updateTitle(_ conversationId: UUID, title: String) throws {
         try db.dbQueue.write { db in
             guard var conv = try Conversation.fetchOne(db, key: conversationId) else { return }
             conv.title = title
@@ -42,7 +42,7 @@ final class ConversationStore: Sendable {
 
     // MARK: - Messages
 
-    func saveMessage(_ message: Message) throws {
+    public func saveMessage(_ message: Message) throws {
         let record = MessageRecord(from: message)
         try db.dbQueue.write { db in
             try record.save(db)
@@ -55,7 +55,7 @@ final class ConversationStore: Sendable {
         }
     }
 
-    func fetchMessages(for conversationId: UUID) throws -> [Message] {
+    public func fetchMessages(for conversationId: UUID) throws -> [Message] {
         try db.dbQueue.read { db in
             try MessageRecord
                 .filter(Column("conversationId") == conversationId)

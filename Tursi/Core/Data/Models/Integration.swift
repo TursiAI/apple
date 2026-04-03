@@ -1,15 +1,15 @@
 import Foundation
 
-struct Integration: Identifiable, Codable {
-    let id: String                 // "gmail", "web-search", etc.
-    var displayName: String
-    var icon: String               // SF Symbol name
-    var isEnabled: Bool
-    var permissionLevel: PermissionLevel
-    var mcpEndpoint: MCPEndpoint
-    var authState: AuthState
+public struct Integration: Identifiable, Codable {
+    public let id: String                 // "gmail", "web-search", etc.
+    public var displayName: String
+    public var icon: String               // SF Symbol name
+    public var isEnabled: Bool
+    public var permissionLevel: PermissionLevel
+    public var mcpEndpoint: MCPEndpoint
+    public var authState: AuthState
 
-    init(
+    public init(
         id: String,
         displayName: String,
         icon: String,
@@ -28,19 +28,19 @@ struct Integration: Identifiable, Codable {
     }
 }
 
-enum PermissionLevel: String, Codable {
-    case askEveryTime
-    case allowAlways
+public enum PermissionLevel: String, Codable {
+    public case askEveryTime
+    public case allowAlways
 }
 
-enum MCPEndpoint: Codable {
-    case builtIn
-    case local(path: String)
-    case remote(url: URL)
+public enum MCPEndpoint: Codable {
+    public case builtIn
+    public case local(path: String)
+    public case remote(url: URL)
 }
 
-enum AuthState: String, Codable {
-    case none          // no auth needed
-    case required      // needs auth, not yet done
-    case authenticated // auth complete
+public enum AuthState: String, Codable {
+    public case none          // no auth needed
+    public case required      // needs auth, not yet done
+    public case authenticated // auth complete
 }

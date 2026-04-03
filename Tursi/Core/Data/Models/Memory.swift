@@ -1,20 +1,20 @@
 import Foundation
 import GRDB
 
-struct Memory: Identifiable, Codable, Sendable {
-    let id: UUID
-    var description: String
-    var content: String
-    var tags: [MemoryTag]
-    var type: MemoryType
-    var source: MemorySource?
-    var isPinned: Bool
-    var importance: Float
-    let createdAt: Date
-    var updatedAt: Date
-    var lastAccessedAt: Date
+public struct Memory: Identifiable, Codable, Sendable {
+    public let id: UUID
+    public var description: String
+    public var content: String
+    public var tags: [MemoryTag]
+    public var type: MemoryType
+    public var source: MemorySource?
+    public var isPinned: Bool
+    public var importance: Float
+    public let createdAt: Date
+    public var updatedAt: Date
+    public var lastAccessedAt: Date
 
-    init(
+    public init(
         id: UUID = UUID(),
         description: String,
         content: String,
@@ -38,47 +38,47 @@ struct Memory: Identifiable, Codable, Sendable {
     }
 }
 
-enum MemoryType: String, Codable, CaseIterable, Sendable {
-    case preference
-    case fact
-    case instruction
-    case context
+public enum MemoryType: String, Codable, CaseIterable, Sendable {
+    public case preference
+    public case fact
+    public case instruction
+    public case context
 }
 
-enum MemoryTag: String, Codable, CaseIterable, Sendable {
-    case personal
-    case work
-    case preferences
-    case social
-    case interests
-    case health
-    case travel
-    case other
+public enum MemoryTag: String, Codable, CaseIterable, Sendable {
+    public case personal
+    public case work
+    public case preferences
+    public case social
+    public case interests
+    public case health
+    public case travel
+    public case other
 }
 
-struct MemorySource: Codable, Sendable {
-    let conversationId: UUID
-    let extractedAt: Date
+public struct MemorySource: Codable, Sendable {
+    public let conversationId: UUID
+    public let extractedAt: Date
 }
 
 // MARK: - GRDB
 
-struct MemoryRecord: Codable, FetchableRecord, PersistableRecord {
-    static let databaseTableName = "memory"
+public struct MemoryRecord: Codable, FetchableRecord, PersistableRecord {
+    public static let databaseTableName = "memory"
 
-    let id: UUID
-    let description: String
-    let content: String
-    let tagsJSON: String
-    let type: String
-    let sourceJSON: String?
-    let isPinned: Bool
-    let importance: Double
-    let createdAt: Date
-    let updatedAt: Date
-    let lastAccessedAt: Date
+    public let id: UUID
+    public let description: String
+    public let content: String
+    public let tagsJSON: String
+    public let type: String
+    public let sourceJSON: String?
+    public let isPinned: Bool
+    public let importance: Double
+    public let createdAt: Date
+    public let updatedAt: Date
+    public let lastAccessedAt: Date
 
-    init(from memory: Memory) {
+    public init(from memory: Memory) {
         self.id = memory.id
         self.description = memory.description
         self.content = memory.content
@@ -92,7 +92,7 @@ struct MemoryRecord: Codable, FetchableRecord, PersistableRecord {
         self.lastAccessedAt = memory.lastAccessedAt
     }
 
-    func toMemory() -> Memory {
+    public func toMemory() -> Memory {
         let decoder = JSONDecoder()
         let tags = tagsJSON.data(using: .utf8)
             .flatMap { try? decoder.decode([MemoryTag].self, from: $0) } ?? []

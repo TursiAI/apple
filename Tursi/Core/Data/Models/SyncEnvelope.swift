@@ -1,12 +1,12 @@
 import Foundation
 
-struct SyncEnvelope: Identifiable, Codable {
-    let id: UUID
-    let userId: String
-    let entityType: String         // "conversation", "memory", "settings"
-    let encryptedPayload: Data     // AES-256-GCM ciphertext
-    let iv: Data
-    let version: Int64
-    let updatedAt: Date
-    let isDeleted: Bool
+public struct SyncEnvelope: Identifiable, Codable {
+    public let id: UUID
+    public let userId: String
+    public let entityType: String         // "conversation", "memory", "settings"
+    public let encryptedPayload: Data     // AES-256-GCM ciphertext
+    public let iv: Data
+    public let version: Int64
+    public let updatedAt: Date
+    public let isDeleted: Bool
 }

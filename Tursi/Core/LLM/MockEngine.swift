@@ -2,14 +2,14 @@ import Foundation
 
 /// A mock LLM engine that echoes back responses for testing and development.
 /// Simulates streaming with word-by-word output.
-final class MockEngine: LLMEngine {
-    var isAvailable: Bool { true }
-    var displayName: String { "Mock (Development)" }
-    var capabilities: LLMCapabilities {
+public final class MockEngine: LLMEngine {
+    public var isAvailable: Bool { true }
+    public var displayName: String { "Mock (Development)" }
+    public var capabilities: LLMCapabilities {
         LLMCapabilities(supportsToolCalling: false, maxContextTokens: 4096, supportsStreaming: true)
     }
 
-    func generate(
+    public func generate(
         messages: [Message],
         systemPrompt: String,
         tools: [MCPToolDefinition]?,

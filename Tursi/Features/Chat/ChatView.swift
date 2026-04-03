@@ -1,4 +1,5 @@
 import SwiftUI
+import TursiCore
 
 struct ChatView: View {
     @ObservedObject var viewModel: ChatViewModel

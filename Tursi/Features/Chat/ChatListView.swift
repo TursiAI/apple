@@ -1,4 +1,5 @@
 import SwiftUI
+import TursiCore
 
 struct ChatListView: View {
     @EnvironmentObject var appState: AppState

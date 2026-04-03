@@ -1,14 +1,14 @@
 import Foundation
 import GRDB
 
-struct Conversation: Identifiable, Codable, Sendable {
-    let id: UUID
-    var title: String
-    let createdAt: Date
-    var updatedAt: Date
-    var isArchived: Bool
+public struct Conversation: Identifiable, Codable, Sendable {
+    public let id: UUID
+    public var title: String
+    public let createdAt: Date
+    public var updatedAt: Date
+    public var isArchived: Bool
 
-    init(id: UUID = UUID(), title: String = "New Conversation", isArchived: Bool = false) {
+    public init(id: UUID = UUID(), title: String = "New Conversation", isArchived: Bool = false) {
         self.id = id
         self.title = title
         self.createdAt = Date()
@@ -18,5 +18,5 @@ struct Conversation: Identifiable, Codable, Sendable {
 }
 
 extension Conversation: FetchableRecord, PersistableRecord {
-    static let databaseTableName = "conversation"
+    public static let databaseTableName = "conversation"
 }

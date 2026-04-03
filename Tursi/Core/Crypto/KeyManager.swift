@@ -2,24 +2,24 @@ import Foundation
 import CryptoKit
 
 /// Manages encryption keys for E2EE.
-final class KeyManager {
+public final class KeyManager {
     private static let keychainService = "ai.tursi.keys"
     private static let masterKeyAccount = "master-key"
 
     /// Generate a new master key and store in Keychain.
-    func createMasterKey() throws -> SymmetricKey {
+    public func createMasterKey() throws -> SymmetricKey {
         let key = SymmetricKey(size: .bits256)
         try storeInKeychain(key: key, account: Self.masterKeyAccount)
         return key
     }
 
     /// Retrieve the master key from Keychain.
-    func getMasterKey() throws -> SymmetricKey? {
+    public func getMasterKey() throws -> SymmetricKey? {
         return try loadFromKeychain(account: Self.masterKeyAccount)
     }
 
     /// Get or create the master key.
-    func getOrCreateMasterKey() throws -> SymmetricKey {
+    public func getOrCreateMasterKey() throws -> SymmetricKey {
         if let existing = try getMasterKey() {
             return existing
         }
@@ -27,14 +27,14 @@ final class KeyManager {
     }
 
     /// Generate a recovery key the user can back up.
-    func generateRecoveryKey(from masterKey: SymmetricKey) -> String {
+    public func generateRecoveryKey(from masterKey: SymmetricKey) -> String {
         // Encode the key as a base64 string the user can write down
         let keyData = masterKey.withUnsafeBytes { Data($0) }
         return keyData.base64EncodedString()
     }
 
     /// Restore master key from a recovery key.
-    func restoreFromRecoveryKey(_ recoveryKey: String) throws -> SymmetricKey {
+    public func restoreFromRecoveryKey(_ recoveryKey: String) throws -> SymmetricKey {
         guard let data = Data(base64Encoded: recoveryKey), data.count == 32 else {
             throw KeyManagerError.invalidRecoveryKey
         }
@@ -44,7 +44,7 @@ final class KeyManager {
     }
 
     /// Delete the master key (account deletion).
-    func deleteMasterKey() throws {
+    public func deleteMasterKey() throws {
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrService as String: Self.keychainService,
@@ -100,11 +100,11 @@ final class KeyManager {
     }
 }
 
-enum KeyManagerError: Error, LocalizedError {
-    case invalidRecoveryKey
-    case keychainError(OSStatus)
+public enum KeyManagerError: Error, LocalizedError {
+    public case invalidRecoveryKey
+    public case keychainError(OSStatus)
 
-    var errorDescription: String? {
+    public var errorDescription: String? {
         switch self {
         case .invalidRecoveryKey:
             return "Invalid recovery key."

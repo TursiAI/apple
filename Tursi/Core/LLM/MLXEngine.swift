@@ -1,7 +1,8 @@
 import Foundation
 
 /// LLM engine using MLX Swift for downloaded open models.
-final class MLXEngine: LLMEngine, @unchecked Sendable {
+public final class MLXEngine: LLMEngine, @unchecked Sendable {
+    public init() {}
     private let lock = NSLock()
     private var _isModelLoaded = false
 
@@ -10,7 +11,7 @@ final class MLXEngine: LLMEngine, @unchecked Sendable {
         set { lock.withLock { _isModelLoaded = newValue } }
     }
 
-    var isAvailable: Bool {
+    public var isAvailable: Bool {
         #if arch(arm64)
         return true
         #else
@@ -18,9 +19,9 @@ final class MLXEngine: LLMEngine, @unchecked Sendable {
         #endif
     }
 
-    var displayName: String { "Enhanced" }
+    public var displayName: String { "Enhanced" }
 
-    var capabilities: LLMCapabilities {
+    public var capabilities: LLMCapabilities {
         LLMCapabilities(
             supportsToolCalling: true,
             maxContextTokens: 8192,
@@ -28,26 +29,26 @@ final class MLXEngine: LLMEngine, @unchecked Sendable {
         )
     }
 
-    var isModelDownloaded: Bool {
+    public var isModelDownloaded: Bool {
         // TODO: Check local storage for downloaded model files
         return false
     }
 
-    func downloadModel(progress: @escaping @Sendable (Double) -> Void) async throws {
+    public func downloadModel(progress: @escaping @Sendable (Double) -> Void) async throws {
         // TODO: Download model weights from CDN / Hugging Face
     }
 
-    func deleteModel() throws {
+    public func deleteModel() throws {
         // TODO: Remove model files from local storage
         isModelLoaded = false
     }
 
-    var modelSizeBytes: Int64 {
+    public var modelSizeBytes: Int64 {
         // TODO: Calculate actual size on disk
         return 0
     }
 
-    func generate(
+    public func generate(
         messages: [Message],
         systemPrompt: String,
         tools: [MCPToolDefinition]?,

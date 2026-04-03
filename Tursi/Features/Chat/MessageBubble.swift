@@ -1,4 +1,5 @@
 import SwiftUI
+import TursiCore
 
 struct MessageBubble: View {
     let message: Message

@@ -1,4 +1,5 @@
 import Foundation
+import TursiCore
 
 /// Orchestrates chat: LLM generation, memory injection, tool calling.
 @MainActor

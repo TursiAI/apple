@@ -1,16 +1,16 @@
 import Foundation
 import GRDB
 
-struct Message: Identifiable, Codable, Sendable {
-    let id: UUID
-    let conversationId: UUID
-    let role: MessageRole
-    var content: String
-    var toolCalls: [ToolCall]?
-    var toolResults: [ToolResult]?
-    let timestamp: Date
+public struct Message: Identifiable, Codable, Sendable {
+    public let id: UUID
+    public let conversationId: UUID
+    public let role: MessageRole
+    public var content: String
+    public var toolCalls: [ToolCall]?
+    public var toolResults: [ToolResult]?
+    public let timestamp: Date
 
-    init(
+    public init(
         id: UUID = UUID(),
         conversationId: UUID,
         role: MessageRole,
@@ -28,40 +28,40 @@ struct Message: Identifiable, Codable, Sendable {
     }
 }
 
-enum MessageRole: String, Codable, Sendable {
-    case user
-    case assistant
-    case system
-    case tool
+public enum MessageRole: String, Codable, Sendable {
+    public case user
+    public case assistant
+    public case system
+    public case tool
 }
 
-struct ToolCall: Identifiable, Codable, Sendable {
-    let id: String
-    let name: String
-    let arguments: String
+public struct ToolCall: Identifiable, Codable, Sendable {
+    public let id: String
+    public let name: String
+    public let arguments: String
 }
 
-struct ToolResult: Codable, Sendable {
-    let toolCallId: String
-    let content: String
-    let isError: Bool
+public struct ToolResult: Codable, Sendable {
+    public let toolCallId: String
+    public let content: String
+    public let isError: Bool
 }
 
 // MARK: - GRDB
 
 /// Database record that maps Message to/from SQLite columns.
-struct MessageRecord: Codable, FetchableRecord, PersistableRecord {
-    static let databaseTableName = "message"
+public struct MessageRecord: Codable, FetchableRecord, PersistableRecord {
+    public static let databaseTableName = "message"
 
-    let id: UUID
-    let conversationId: UUID
-    let role: String
-    let content: String
-    let toolCallsJSON: String?
-    let toolResultsJSON: String?
-    let timestamp: Date
+    public let id: UUID
+    public let conversationId: UUID
+    public let role: String
+    public let content: String
+    public let toolCallsJSON: String?
+    public let toolResultsJSON: String?
+    public let timestamp: Date
 
-    init(from message: Message) {
+    public init(from message: Message) {
         self.id = message.id
         self.conversationId = message.conversationId
         self.role = message.role.rawValue
@@ -71,7 +71,7 @@ struct MessageRecord: Codable, FetchableRecord, PersistableRecord {
         self.timestamp = message.timestamp
     }
 
-    func toMessage() -> Message {
+    public func toMessage() -> Message {
         let decoder = JSONDecoder()
         let toolCalls = toolCallsJSON
             .flatMap { $0.data(using: .utf8) }

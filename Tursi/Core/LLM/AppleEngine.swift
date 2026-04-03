@@ -1,16 +1,17 @@
 import Foundation
 
 /// LLM engine using Apple's on-device Foundation Models (iOS 26+).
-final class AppleEngine: LLMEngine {
-    var isAvailable: Bool {
+public final class AppleEngine: LLMEngine {
+    public init() {}
+    public var isAvailable: Bool {
         // TODO: Check for Apple Foundation Models availability
         // guard #available(iOS 26, macOS 26, *) else { return false }
         return false
     }
 
-    var displayName: String { "Standard" }
+    public var displayName: String { "Standard" }
 
-    var capabilities: LLMCapabilities {
+    public var capabilities: LLMCapabilities {
         LLMCapabilities(
             supportsToolCalling: true,
             maxContextTokens: 4096,
@@ -18,7 +19,7 @@ final class AppleEngine: LLMEngine {
         )
     }
 
-    func generate(
+    public func generate(
         messages: [Message],
         systemPrompt: String,
         tools: [MCPToolDefinition]?,
@@ -34,12 +35,12 @@ final class AppleEngine: LLMEngine {
     }
 }
 
-enum LLMError: Error, LocalizedError {
-    case notAvailable
-    case generationFailed(String)
-    case modelNotLoaded
+public enum LLMError: Error, LocalizedError {
+    public case notAvailable
+    public case generationFailed(String)
+    public case modelNotLoaded
 
-    var errorDescription: String? {
+    public var errorDescription: String? {
         switch self {
         case .notAvailable:
             return "This AI model is not available on your device."

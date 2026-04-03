@@ -2,11 +2,11 @@ import Foundation
 import GRDB
 
 /// Manages the local SQLite database.
-final class Database: Sendable {
-    let dbQueue: DatabaseQueue
+public final class Database: Sendable {
+    public let dbQueue: DatabaseQueue
 
     /// Open (or create) the database at the standard app location.
-    init() throws {
+    public init() throws {
         let url = try FileManager.default
             .url(for: .applicationSupportDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
             .appendingPathComponent("tursi.sqlite")
@@ -15,7 +15,7 @@ final class Database: Sendable {
     }
 
     /// In-memory database for tests.
-    init(inMemory: Bool) throws {
+    public init(inMemory: Bool) throws {
         dbQueue = try DatabaseQueue()
         try migrate()
     }

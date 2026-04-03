@@ -1,4 +1,5 @@
 import SwiftUI
+import TursiCore
 
 struct IntegrationsView: View {
     @State private var integrations: [Integration] = Integration.defaults
