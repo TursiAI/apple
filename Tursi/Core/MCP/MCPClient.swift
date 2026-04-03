@@ -1,22 +1,20 @@
 import Foundation
 
 /// MCP client that routes tool calls to enabled integrations.
-final class MCPClient {
-    private var integrations: [String: Integration] = [:]
-    private var connections: [String: MCPConnection] = [:]
+final class MCPClient: @unchecked Sendable {
+    private let lock = NSLock()
+    private var _integrations: [String: Integration] = [:]
+    private var _connections: [String: MCPConnection] = [:]
 
-    /// Register an integration.
     func register(_ integration: Integration) {
-        integrations[integration.id] = integration
+        lock.withLock { _integrations[integration.id] = integration }
     }
 
-    /// Get all available tool definitions from enabled integrations.
     func availableTools() async -> [MCPToolDefinition] {
         // TODO: Query each enabled integration's MCP server for its tools
         return []
     }
 
-    /// Execute a tool call, routing to the correct integration.
     func execute(toolCall: ToolCall) async throws -> ToolResult {
         // TODO: Find the integration that owns this tool
         // Check permission level (ask user if needed)
@@ -30,9 +28,7 @@ final class MCPClient {
     }
 }
 
-/// Represents a live connection to an MCP server.
-struct MCPConnection {
+struct MCPConnection: Sendable {
     let integrationId: String
     let endpoint: MCPEndpoint
-    // TODO: WebSocket/HTTP connection state
 }

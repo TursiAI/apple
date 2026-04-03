@@ -1,11 +1,16 @@
 import Foundation
 
 /// LLM engine using MLX Swift for downloaded open models.
-final class MLXEngine: LLMEngine {
-    private var isModelLoaded = false
+final class MLXEngine: LLMEngine, @unchecked Sendable {
+    private let lock = NSLock()
+    private var _isModelLoaded = false
+
+    private var isModelLoaded: Bool {
+        get { lock.withLock { _isModelLoaded } }
+        set { lock.withLock { _isModelLoaded = newValue } }
+    }
 
     var isAvailable: Bool {
-        // Available on Apple Silicon devices
         #if arch(arm64)
         return true
         #else
@@ -23,26 +28,20 @@ final class MLXEngine: LLMEngine {
         )
     }
 
-    /// Check if a model has been downloaded.
     var isModelDownloaded: Bool {
         // TODO: Check local storage for downloaded model files
         return false
     }
 
-    /// Download the enhanced model.
-    func downloadModel(progress: @escaping (Double) -> Void) async throws {
+    func downloadModel(progress: @escaping @Sendable (Double) -> Void) async throws {
         // TODO: Download model weights from CDN / Hugging Face
-        // Store in app's documents directory
-        // Update isModelDownloaded
     }
 
-    /// Delete the downloaded model to free storage.
     func deleteModel() throws {
         // TODO: Remove model files from local storage
         isModelLoaded = false
     }
 
-    /// Storage used by the downloaded model in bytes.
     var modelSizeBytes: Int64 {
         // TODO: Calculate actual size on disk
         return 0
@@ -56,8 +55,6 @@ final class MLXEngine: LLMEngine {
     ) -> AsyncThrowingStream<LLMToken, Error> {
         AsyncThrowingStream { continuation in
             // TODO: Integrate with MLX Swift
-            // import MLX / mlx-swift-examples
-            // Load model, tokenize, generate with streaming
             continuation.finish(throwing: LLMError.modelNotLoaded)
         }
     }
