@@ -7,13 +7,44 @@ on:
     branches: [main]
 
 jobs:
-  build:
+  # Swift Package build + tests (core library)
+  spm:
+    name: SPM Build & Test
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build
+        run: swift build
+      - name: Test
+        run: swift test
+
+  # Xcode build (full app)
+  xcode:
+    name: Xcode Build
     runs-on: macos-15
     steps:
       - uses: actions/checkout@v4
 
-      - name: Build
-        run: swift build
+      - name: Install xcodegen
+        run: brew install xcodegen
 
-      - name: Test
-        run: swift test
+      - name: Generate Xcode project
+        run: xcodegen generate
+
+      - name: Build iOS
+        run: |
+          xcodebuild build \
+            -project Tursi.xcodeproj \
+            -scheme Tursi \
+            -destination 'platform=iOS Simulator,name=iPhone 16' \
+            -configuration Debug \
+            CODE_SIGNING_ALLOWED=NO
+
+      - name: Build macOS
+        run: |
+          xcodebuild build \
+            -project Tursi.xcodeproj \
+            -scheme Tursi \
+            -destination 'platform=macOS' \
+            -configuration Debug \
+            CODE_SIGNING_ALLOWED=NO
